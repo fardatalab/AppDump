@@ -4,6 +4,7 @@
 Commands for Garnet:
 
 ```
+sudo add-apt-repository ppa:dotnet/backports
 sudo apt-get update && \
   sudo apt-get install -y dotnet-sdk-9.0
 git clone https://github.com/fardatalab/garnet_appdump --recursive
