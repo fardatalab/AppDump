@@ -1,7 +1,7 @@
 # AppDump
 
 ## Getting Started
-Commands for Garnet:
+Commands to run Garnet:
 
 ```
 sudo add-apt-repository ppa:dotnet/backports
