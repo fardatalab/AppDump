@@ -1,0 +1,11 @@
+C:\Users\adars\Desktop\Coding\AppDump\bin\Debug\net9.0\AppDump.deps.json
+C:\Users\adars\Desktop\Coding\AppDump\bin\Debug\net9.0\AppDump.dll
+C:\Users\adars\Desktop\Coding\AppDump\bin\Debug\net9.0\AppDump.pdb
+C:\Users\adars\Desktop\Coding\AppDump\obj\Debug\net9.0\AppDump.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\adars\Desktop\Coding\AppDump\obj\Debug\net9.0\AppDump.AssemblyInfoInputs.cache
+C:\Users\adars\Desktop\Coding\AppDump\obj\Debug\net9.0\AppDump.AssemblyInfo.cs
+C:\Users\adars\Desktop\Coding\AppDump\obj\Debug\net9.0\AppDump.csproj.CoreCompileInputs.cache
+C:\Users\adars\Desktop\Coding\AppDump\obj\Debug\net9.0\AppDump.dll
+C:\Users\adars\Desktop\Coding\AppDump\obj\Debug\net9.0\refint\AppDump.dll
+C:\Users\adars\Desktop\Coding\AppDump\obj\Debug\net9.0\AppDump.pdb
+C:\Users\adars\Desktop\Coding\AppDump\obj\Debug\net9.0\ref\AppDump.dll
