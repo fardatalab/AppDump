@@ -51,7 +51,7 @@ namespace AppDumpV2
             if (disposed) throw new ObjectDisposedException(nameof(AppLogger));
 
             // Process all queued items immediately
-            ProcessQueuedItemsV2();
+            ProcessQueuedItems();
 
             lock (writer) {
                 writer.Flush();
@@ -62,7 +62,7 @@ namespace AppDumpV2
         private void ProcessLogQueue(CancellationToken token) {
             while (!token.IsCancellationRequested || !logQueue.IsEmpty) {
                 try {
-                    ProcessQueuedItemsV2();
+                    ProcessQueuedItems();
                     Thread.Sleep(50);
                 }
                 catch (Exception ex) {
@@ -74,35 +74,7 @@ namespace AppDumpV2
         // Process queued items in a batch. It is called by the background task
         // and the Flush() method.
 
-        // TODO: the ProcessQueuedItems() function still lock for every
-        // WriteLine, but ProcessQueuedItemsV2() only lock the writer once for
-        // the whole batch. However, a potential issue of ProcessQueuedItemsV2()
-        // is that it may always be trapped in the while loop. NEED TEST!!! 
         private void ProcessQueuedItems() {
-            int itemsProcessed = 0;
-            int batchSize = 100;
-
-            while (itemsProcessed < batchSize && logQueue.TryDequeue(out string? logEntry)) {
-                lock (writer) {
-                    writer.WriteLine(logEntry);
-                    if (bufferSize > 0 && writer.BaseStream.Length >= bufferSize) {
-                        writer.Flush();
-                    }
-                }
-                itemsProcessed++;
-            }
-
-            // If we processed a full batch and there are still significant backlogs, perform an extra flush to ensure timely persistence
-            if (itemsProcessed == batchSize) {
-                if (logQueue.Count > batchSize * 5) {
-                    lock (writer) {
-                        writer.Flush();
-                    }
-                }
-            }
-        }
-
-        private void ProcessQueuedItemsV2() {
             int batchSize = 100;
             List<string> batch = new List<string>(batchSize);
 
@@ -150,7 +122,7 @@ namespace AppDumpV2
                     catch (AggregateException) {}
 
                     // Process remaining items
-                    ProcessQueuedItemsV2();
+                    ProcessQueuedItems();
 
                     lock (writer) {
                         writer.Flush();
