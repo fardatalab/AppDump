@@ -4,12 +4,7 @@
 
 // The Flush() method forces all buffered data to be written to the underlying storage immediately. The Dispose() method implements the IDisposable pattern.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AppDumpV2
 {
@@ -56,7 +51,7 @@ namespace AppDumpV2
             if (disposed) throw new ObjectDisposedException(nameof(AppLogger));
 
             // Process all queued items immediately
-            ProcessQueuedItems();
+            ProcessQueuedItemsV2();
 
             lock (writer) {
                 writer.Flush();
@@ -67,7 +62,7 @@ namespace AppDumpV2
         private void ProcessLogQueue(CancellationToken token) {
             while (!token.IsCancellationRequested || !logQueue.IsEmpty) {
                 try {
-                    ProcessQueuedItems();
+                    ProcessQueuedItemsV2();
                     Thread.Sleep(50);
                 }
                 catch (Exception ex) {
@@ -155,7 +150,7 @@ namespace AppDumpV2
                     catch (AggregateException) {}
 
                     // Process remaining items
-                    ProcessQueuedItems();
+                    ProcessQueuedItemsV2();
 
                     lock (writer) {
                         writer.Flush();
