@@ -76,6 +76,13 @@ namespace AppDumpV2
             }
         }
 
+        // Process queued items in a batch. It is called by the background task
+        // and the Flush() method.
+
+        // TODO: the ProcessQueuedItems() function still lock for every
+        // WriteLine, but ProcessQueuedItemsV2() only lock the writer once for
+        // the whole batch. However, a potential issue of ProcessQueuedItemsV2()
+        // is that it may always be trapped in the while loop. NEED TEST!!! 
         private void ProcessQueuedItems() {
             int itemsProcessed = 0;
             int batchSize = 100;
@@ -96,6 +103,36 @@ namespace AppDumpV2
                     lock (writer) {
                         writer.Flush();
                     }
+                }
+            }
+        }
+
+        private void ProcessQueuedItemsV2() {
+            int batchSize = 100;
+            List<string> batch = new List<string>(batchSize);
+
+            while (logQueue.TryDequeue(out string logEntry)) {
+                batch.Add(logEntry);
+
+                if (batch.Count >= batchSize) {
+                    WriteBatch(batch);
+                    batch.Clear();
+                }
+            }
+
+            if (batch.Count > 0) {
+                WriteBatch(batch);
+            }
+        }
+
+        private void WriteBatch(List<string> batch) {
+            lock (writer) {
+                foreach (var logEntry in batch) {
+                    writer.WriteLine(logEntry);
+                }
+
+                if (bufferSize > 0 && writer.BaseStream.Length >= bufferSize) {
+                    writer.Flush();
                 }
             }
         }
