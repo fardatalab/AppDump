@@ -4,10 +4,8 @@
 
 // The Flush() method forces all buffered data to be written to the underlying storage immediately. The Dispose() method implements the IDisposable pattern.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -87,7 +85,7 @@ namespace AppDumpV2
             int itemsProcessed = 0;
             int batchSize = 100;
 
-            while (itemsProcessed < batchSize && logQueue.TryDequeue(out string logEntry)) {
+            while (itemsProcessed < batchSize && logQueue.TryDequeue(out string? logEntry)) {
                 lock (writer) {
                     writer.WriteLine(logEntry);
                     if (bufferSize > 0 && writer.BaseStream.Length >= bufferSize) {
@@ -111,7 +109,7 @@ namespace AppDumpV2
             int batchSize = 100;
             List<string> batch = new List<string>(batchSize);
 
-            while (logQueue.TryDequeue(out string logEntry)) {
+            while (logQueue.TryDequeue(out string? logEntry)) {
                 batch.Add(logEntry);
 
                 if (batch.Count >= batchSize) {
