@@ -6,8 +6,6 @@ index 9793023cf..1f782a606 100644
    <ItemGroup>
      <ProjectReference Include="..\..\libs\client\Garnet.client.csproj" />
      <ProjectReference Include="..\..\libs\server\Garnet.server.csproj" />
--    <ProjectReference Include="..\..\metrics\HdrHistogram\HdrHistogram.csproj" />     
-+    <ProjectReference Include="..\..\metrics\HdrHistogram\HdrHistogram.csproj" />  
 +    <ProjectReference Include="..\..\..\AppDump.csproj" />   
    </ItemGroup>
  
