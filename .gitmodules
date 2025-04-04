@@ -1,0 +1,3 @@
+[submodule "Garnet"]
+	path = Garnet
+	url = https://github.com/microsoft/Garnet.git
