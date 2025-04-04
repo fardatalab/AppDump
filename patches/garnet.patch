@@ -2,11 +2,11 @@ diff --git a/benchmark/Resp.benchmark/Resp.benchmark.csproj b/benchmark/Resp.ben
 index 9793023cf..1f782a606 100644
 --- a/benchmark/Resp.benchmark/Resp.benchmark.csproj
 +++ b/benchmark/Resp.benchmark/Resp.benchmark.csproj
-@@ -23,7 +23,8 @@
+@@ -23,7 +23,7 @@
    <ItemGroup>
      <ProjectReference Include="..\..\libs\client\Garnet.client.csproj" />
      <ProjectReference Include="..\..\libs\server\Garnet.server.csproj" />
-+    <ProjectReference Include="..\..\..\AppDump.csproj" />   
++    <ProjectReference Include="..\..\..\AppDump.csproj" />
    </ItemGroup>
  
  </Project>
