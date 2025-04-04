@@ -1,0 +1,112 @@
+diff --git a/benchmark/Resp.benchmark/Resp.benchmark.csproj b/benchmark/Resp.benchmark/Resp.benchmark.csproj
+index 9793023cf..1f782a606 100644
+--- a/benchmark/Resp.benchmark/Resp.benchmark.csproj
++++ b/benchmark/Resp.benchmark/Resp.benchmark.csproj
+@@ -23,7 +23,8 @@
+   <ItemGroup>
+     <ProjectReference Include="..\..\libs\client\Garnet.client.csproj" />
+     <ProjectReference Include="..\..\libs\server\Garnet.server.csproj" />
+-    <ProjectReference Include="..\..\metrics\HdrHistogram\HdrHistogram.csproj" />     
++    <ProjectReference Include="..\..\metrics\HdrHistogram\HdrHistogram.csproj" />  
++    <ProjectReference Include="..\..\..\AppDump.csproj" />   
+   </ItemGroup>
+ 
+ </Project>
+\ No newline at end of file
+diff --git a/benchmark/Resp.benchmark/RespPerfBench.cs b/benchmark/Resp.benchmark/RespPerfBench.cs
+index e69109177..4a27a9161 100644
+--- a/benchmark/Resp.benchmark/RespPerfBench.cs
++++ b/benchmark/Resp.benchmark/RespPerfBench.cs
+@@ -12,6 +12,7 @@ using System.Threading.Tasks;
+ using Garnet.client;
+ using Garnet.common;
+ using StackExchange.Redis;
++using AppDumpV2;
+ 
+ namespace Resp.benchmark
+ {
+@@ -34,6 +35,8 @@ namespace Resp.benchmark
+         volatile bool done = false;
+         long total_ops_done = 0;
+ 
++        AppLogger logger;
++
+ 
+         public RespPerfBench(Options opts, int Start, IConnectionMultiplexer redis)
+         {
+@@ -41,6 +44,7 @@ namespace Resp.benchmark
+             this.Start = Start;
+             if (opts.Client == ClientType.SERedis)
+                 this.redis = redis;
++            this.logger = new AppLogger("curr_log.txt");
+         }
+ 
+         /// <summary>
+@@ -329,7 +333,7 @@ namespace Resp.benchmark
+                 workers[idx] = opts.Client switch
+                 {
+ 
+-                    ClientType.LightClient => new Thread(() => LightOperateThreadRunner(OpsPerThread, opType, rg)),
++                    ClientType.LightClient => new Thread(() => LightOperateThreadRunner(OpsPerThread, opType, rg, x)),
+                     ClientType.GarnetClientSession => new Thread(() => GarnetClientSessionOperateThreadRunner(OpsPerThread, opType, rg)),
+                     ClientType.SERedis => new Thread(() => SERedisOperateThreadRunner(OpsPerThread, opType, rg)),
+                     _ => throw new Exception($"ClientType {opts.Client} not supported"),
+@@ -371,7 +375,7 @@ namespace Resp.benchmark
+             return rg;
+         }
+ 
+-        private unsafe void LightOperateThreadRunner(int NumOps, OpType opType, ReqGen rg)
++        private unsafe void LightOperateThreadRunner(int NumOps, OpType opType, ReqGen rg, int threadId)
+         {
+             var lighClientOnResponseDelegate = new LightClient.OnResponseDelegateUnsafe(ReqGen.OnResponse);
+             using ClientBase client = new LightClient(new IPEndPoint(IPAddress.Parse(opts.Address), opts.Port), (int)opType, lighClientOnResponseDelegate, rg.GetBufferSize(), opts.EnableTLS ? BenchUtils.GetTlsOptions(opts.TlsHost, opts.CertFileName, opts.CertPassword) : null);
+@@ -386,17 +390,23 @@ namespace Resp.benchmark
+ 
+             Stopwatch sw = new();
+             sw.Start();
++            logger.Log(Stopwatch.GetTimestamp(), "START_STOPWATCH", new List<string> {threadId.ToString()});
++
+             while (!done)
+             {
+                 byte[] buf = rg.GetRequest(out int len);
+                 client.Send(buf, len, (opType == OpType.MSET || opType == OpType.MPFADD) ? 1 : rg.BatchCount);
+                 client.CompletePendingRequests();
++                logger.Log(Stopwatch.GetTimestamp(), "FINISH_BATCH", new List<string> {threadId.ToString(), numReqs.ToString()});
+                 numReqs++;
+                 if (numReqs == maxReqs) break;
+             }
++            
+             sw.Stop();
+-
++            logger.Log(Stopwatch.GetTimestamp(), "STOP_STOPWATCH", new List<string> {threadId.ToString()});
++            
+             Interlocked.Add(ref total_ops_done, numReqs * rg.BatchCount);
++            logger.Log(Stopwatch.GetTimestamp(), "ACCUMULATE_OPS", new List<string> {threadId.ToString()});
+         }
+ 
+         private void GarnetClientSessionOperateThreadRunner(int NumOps, OpType opType, ReqGen rg)
+diff --git a/playground/ClusterStress/ClusterStress.csproj b/playground/ClusterStress/ClusterStress.csproj
+index 5a77e2b49..10cde488a 100644
+--- a/playground/ClusterStress/ClusterStress.csproj
++++ b/playground/ClusterStress/ClusterStress.csproj
+@@ -4,6 +4,12 @@
+     <OutputType>Exe</OutputType>
+   </PropertyGroup>
+ 
++  <PropertyGroup>
++    <TargetFramework>net8.0</TargetFramework>
++    <ImplicitUsings>enable</ImplicitUsings>
++    <Nullable>enable</Nullable>
++  </PropertyGroup>
++
+   <ItemGroup>
+     <Compile Include="..\..\libs\cluster\Server\Worker.cs" Link="Worker.cs" />
+     <Compile Include="..\..\libs\cluster\Server\HashSlot.cs" Link="HashSlot.cs" />
+@@ -32,6 +38,7 @@
+   <ItemGroup>
+     <ProjectReference Include="..\..\libs\client\Garnet.client.csproj" />
+     <ProjectReference Include="..\..\libs\server\Garnet.server.csproj" />
++    <ProjectReference Include="..\..\..\AppDump.csproj" />
+   </ItemGroup>
+ 
+ </Project>
