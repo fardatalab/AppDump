@@ -89,20 +89,7 @@ diff --git a/playground/ClusterStress/ClusterStress.csproj b/playground/ClusterS
 index 5a77e2b49..10cde488a 100644
 --- a/playground/ClusterStress/ClusterStress.csproj
 +++ b/playground/ClusterStress/ClusterStress.csproj
-@@ -4,6 +4,12 @@
-     <OutputType>Exe</OutputType>
-   </PropertyGroup>
- 
-+  <PropertyGroup>
-+    <TargetFramework>net8.0</TargetFramework>
-+    <ImplicitUsings>enable</ImplicitUsings>
-+    <Nullable>enable</Nullable>
-+  </PropertyGroup>
-+
-   <ItemGroup>
-     <Compile Include="..\..\libs\cluster\Server\Worker.cs" Link="Worker.cs" />
-     <Compile Include="..\..\libs\cluster\Server\HashSlot.cs" Link="HashSlot.cs" />
-@@ -32,6 +38,7 @@
+@@ -32,6 +32,7 @@
    <ItemGroup>
      <ProjectReference Include="..\..\libs\client\Garnet.client.csproj" />
      <ProjectReference Include="..\..\libs\server\Garnet.server.csproj" />
